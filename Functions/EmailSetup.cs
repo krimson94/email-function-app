@@ -45,11 +45,13 @@ namespace EmailFunctionApp.Functions
             }
             catch
             {
+                _logger.LogError("Invalid JSON format.");
                 return new BadRequestObjectResult("Invalid JSON format.");
             }
 
             if (request == null || request.Templates == null)
             {
+                _logger.LogError("Invalid request: 'templates' is required.");
                 return new BadRequestObjectResult("Payload must contain 'templates'.");
             }
 
@@ -77,7 +79,8 @@ namespace EmailFunctionApp.Functions
 
             foreach (var token in tokens)
             {
-                string pattern = $@"\[{Regex.Escape(token.Key)}\]";
+                string pattern = @"(\[|\{)" + Regex.Escape(token.Key) + @"(\]|\})";
+
                 content = Regex.Replace(content, pattern, token.Value, RegexOptions.IgnoreCase);
             }
 
